@@ -255,7 +255,7 @@
 <!-- ================= SOUND ================= -->
 
 <audio id="clockSound" loop preload="auto">
-    <source src="sound/tick.mp3" type="audio/mpeg">
+    <source src="tick.mp3" type="audio/mpeg">
 </audio>
 
 
@@ -263,57 +263,59 @@
 
     /* =========================================
        DATA SOAL
+       FOTO DAN SOUND BERADA DI FOLDER YANG SAMA
+       DENGAN index.html
     ========================================= */
 
     const questions = [
 
         {
-            image: "images/soal1.jpg",
+            image: "soal1.jpg",
             answers: ["arlanka", "arlan"]
         },
 
         {
-            image: "images/soal2.jpg",
+            image: "soal2.jpg",
             answers: ["isha", "ishaira"]
         },
 
         {
-            image: "images/soal3.jpg",
+            image: "soal3.jpg",
             answers: ["ale", "aledrea"]
         },
 
         {
-            image: "images/soal4.jpg",
+            image: "soal4.jpg",
             answers: ["nishi", "nishielle"]
         },
 
         {
-            image: "images/soal5.jpg",
+            image: "soal5.jpg",
             answers: ["theo", "theofan"]
         },
 
         {
-            image: "images/soal6.jpg",
+            image: "soal6.jpg",
             answers: ["quin", "quintton"]
         },
 
         {
-            image: "images/soal7.jpg",
+            image: "soal7.jpg",
             answers: ["nio", "niolan"]
         },
 
         {
-            image: "images/soal8.jpg",
+            image: "soal8.jpg",
             answers: ["jeanne"]
         },
 
         {
-            image: "images/soal9.jpg",
+            image: "soal9.jpg",
             answers: ["arc", "archie"]
         },
 
         {
-            image: "images/soal10.jpg",
+            image: "soal10.jpg",
             answers: ["jasta", "jastara"]
         }
 
@@ -406,9 +408,13 @@
             const playPromise = clockSound.play();
 
             if (playPromise !== undefined) {
+
                 playPromise.catch(function () {
+
                     console.log("Sound tidak dapat dimainkan.");
+
                 });
+
             }
 
         } catch (error) {
@@ -479,7 +485,7 @@
 
 
     /* =========================================
-       TIMER
+       TIMER 5 DETIK
     ========================================= */
 
     function startTimer() {
@@ -553,7 +559,8 @@
 
         if (userAnswer === "") {
 
-            message.textContent = "Masukkan jawaban terlebih dahulu!";
+            message.textContent =
+                "Masukkan jawaban terlebih dahulu!";
 
             return;
 
@@ -711,3 +718,5 @@
 
 </body>
 </html>
+```
+
