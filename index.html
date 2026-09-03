@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Kuis Tebak Foto</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #111827, #1f2937);
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            width: 95%;
+            max-width: 700px;
+            background: #ffffff;
+            color: #111827;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.4);
+            text-align: center;
+        }
+
+        h1 {
+            margin-top: 0;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* START */
+        #startScreen h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        #startScreen p {
+            color: #555;
+            margin-bottom: 25px;
+        }
+
+        button {
+            border: none;
+            border-radius: 10px;
+            padding: 13px 25px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        #startButton {
+            background: #111827;
+            color: white;
+        }
+
+        button:hover {
+            transform: scale(1.03);
+            opacity: 0.9;
+        }
+
+        /* QUIZ */
+        .top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+
+        #timer {
+            background: #ef4444;
+            color: white;
+            padding: 8px 14px;
+            border-radius: 10px;
+            font-size: 18px;
+            min-width: 55px;
+        }
+
+        #questionNumber {
+            font-size: 17px;
+        }
+
+        #questionImage {
+            width: 100%;
+            max-height: 400px;
+            object-fit: contain;
+            border-radius: 15px;
+            margin: 10px 0 20px;
+            background: #f3f4f6;
+        }
+
+        .answerBox {
+            display: flex;
+            gap: 10px;
+        }
+
+        #answerInput {
+            flex: 1;
+            padding: 14px;
+            font-size: 16px;
+            border: 2px solid #d1d5db;
+            border-radius: 10px;
+            outline: none;
+        }
+
+        #answerInput:focus {
+            border-color: #111827;
+        }
+
+        #submitButton {
+            background: #111827;
+            color: white;
+        }
+
+        #message {
+            min-height: 25px;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+
+        /* RESULT */
+        #resultScreen h1 {
+            font-size: 30px;
+        }
+
+        #score {
+            font-size: 48px;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+
+        #resultText {
+            font-size: 18px;
+            line-height: 1.5;
+            margin-bottom: 25px;
+        }
+
+        #restartButton {
+            background: #111827;
+            color: white;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 18px;
+            }
+
+            .answerBox {
+                flex-direction: column;
+            }
+
+            #questionImage {
+                max-height: 300px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <!-- ================= START SCREEN ================= -->
+    <div id="startScreen">
+
+        <h1>🎯 KUIS TEBAK FOTO</h1>
+
+        <p>
+            Tebak siapa orang yang ada di dalam foto.<br>
+            Kamu memiliki waktu terbatas untuk setiap soal!
+        </p>
+
+        <button id="startButton">
+            MULAI KUIS
+        </button>
+
+    </div>
+
+
+    <!-- ================= QUIZ SCREEN ================= -->
+    <div id="quizScreen" class="hidden">
+
+        <div class="top">
+
+            <div id="questionNumber">
+                Soal 1 / 10
+            </div>
+
+            <div id="timer">
+                5
+            </div>
+
+        </div>
+
+        <img
+            id="questionImage"
+            src=""
+            alt="Foto soal"
+        >
+
+        <div class="answerBox">
+
+            <input
+                type="text"
+                id="answerInput"
+                placeholder="Masukkan jawaban..."
+                autocomplete="off"
+            >
+
+            <button id="submitButton">
+                JAWAB
+            </button>
+
+        </div>
+
+        <div id="message"></div>
+
+    </div>
+
+
+    <!-- ================= RESULT SCREEN ================= -->
+    <div id="resultScreen" class="hidden">
+
+        <h1>🎉 KUIS SELESAI!</h1>
+
+        <div id="score">
+            0 / 10
+        </div>
+
+        <div id="resultText"></div>
+
+        <button id="restartButton">
+            MAIN LAGI
+        </button>
+
+    </div>
+
+</div>
+
+
+<!-- ================= SOUND ================= -->
+
+<audio id="clockSound" loop preload="auto">
+    <source src="sound/tick.mp3" type="audio/mpeg">
+</audio>
+
+
+<script>
+
+    /* =========================================
+       DATA SOAL
+    ========================================= */
+
+    const questions = [
+
+        {
+            image: "images/soal1.jpg",
+            answers: ["arlanka", "arlan"]
+        },
+
+        {
+            image: "images/soal2.jpg",
+            answers: ["isha", "ishaira"]
+        },
+
+        {
+            image: "images/soal3.jpg",
+            answers: ["ale", "aledrea"]
+        },
+
+        {
+            image: "images/soal4.jpg",
+            answers: ["nishi", "nishielle"]
+        },
+
+        {
+            image: "images/soal5.jpg",
+            answers: ["theo", "theofan"]
+        },
+
+        {
+            image: "images/soal6.jpg",
+            answers: ["quin", "quintton"]
+        },
+
+        {
+            image: "images/soal7.jpg",
+            answers: ["nio", "niolan"]
+        },
+
+        {
+            image: "images/soal8.jpg",
+            answers: ["jeanne"]
+        },
+
+        {
+            image: "images/soal9.jpg",
+            answers: ["arc", "archie"]
+        },
+
+        {
+            image: "images/soal10.jpg",
+            answers: ["jasta", "jastara"]
+        }
+
+    ];
+
+
+    /* =========================================
+       PENGATURAN
+    ========================================= */
+
+    const TIME_PER_QUESTION = 5;
+
+
+    /* =========================================
+       ELEMENT HTML
+    ========================================= */
+
+    const startScreen = document.getElementById("startScreen");
+    const quizScreen = document.getElementById("quizScreen");
+    const resultScreen = document.getElementById("resultScreen");
+
+    const startButton = document.getElementById("startButton");
+    const submitButton = document.getElementById("submitButton");
+    const restartButton = document.getElementById("restartButton");
+
+    const questionNumber = document.getElementById("questionNumber");
+    const questionImage = document.getElementById("questionImage");
+
+    const answerInput = document.getElementById("answerInput");
+
+    const timerElement = document.getElementById("timer");
+
+    const message = document.getElementById("message");
+
+    const scoreElement = document.getElementById("score");
+    const resultText = document.getElementById("resultText");
+
+    const clockSound = document.getElementById("clockSound");
+
+
+    /* =========================================
+       VARIABLE GAME
+    ========================================= */
+
+    let currentQuestion = 0;
+    let score = 0;
+
+    let timeLeft = TIME_PER_QUESTION;
+
+    let timer = null;
+
+    let answerSubmitted = false;
+
+
+    /* =========================================
+       MULAI KUIS
+    ========================================= */
+
+    startButton.addEventListener("click", function () {
+
+        currentQuestion = 0;
+        score = 0;
+
+        startScreen.classList.add("hidden");
+        resultScreen.classList.add("hidden");
+        quizScreen.classList.remove("hidden");
+
+        startClockSound();
+
+        showQuestion();
+
+    });
+
+
+    /* =========================================
+       SOUND DETAK JAM
+    ========================================= */
+
+    function startClockSound() {
+
+        if (!clockSound) {
+            return;
+        }
+
+        try {
+
+            clockSound.currentTime = 0;
+            clockSound.volume = 0.5;
+
+            const playPromise = clockSound.play();
+
+            if (playPromise !== undefined) {
+                playPromise.catch(function () {
+                    console.log("Sound tidak dapat dimainkan.");
+                });
+            }
+
+        } catch (error) {
+
+            console.log("Audio error:", error);
+
+        }
+
+    }
+
+
+    function stopClockSound() {
+
+        if (!clockSound) {
+            return;
+        }
+
+        try {
+
+            clockSound.pause();
+            clockSound.currentTime = 0;
+
+        } catch (error) {
+
+            console.log("Audio error:", error);
+
+        }
+
+    }
+
+
+    /* =========================================
+       MENAMPILKAN SOAL
+    ========================================= */
+
+    function showQuestion() {
+
+        clearInterval(timer);
+
+        answerSubmitted = false;
+
+        answerInput.value = "";
+        answerInput.disabled = false;
+
+        submitButton.disabled = false;
+
+        message.textContent = "";
+
+        const question = questions[currentQuestion];
+
+        questionNumber.textContent =
+            "Soal " +
+            (currentQuestion + 1) +
+            " / " +
+            questions.length;
+
+        questionImage.src = question.image;
+
+        timeLeft = TIME_PER_QUESTION;
+
+        timerElement.textContent = timeLeft;
+
+        answerInput.focus();
+
+        startTimer();
+
+    }
+
+
+    /* =========================================
+       TIMER
+    ========================================= */
+
+    function startTimer() {
+
+        timer = setInterval(function () {
+
+            timeLeft--;
+
+            timerElement.textContent = timeLeft;
+
+            if (timeLeft <= 0) {
+
+                clearInterval(timer);
+
+                timeOut();
+
+            }
+
+        }, 1000);
+
+    }
+
+
+    /* =========================================
+       WAKTU HABIS
+    ========================================= */
+
+    function timeOut() {
+
+        if (answerSubmitted) {
+            return;
+        }
+
+        answerSubmitted = true;
+
+        answerInput.disabled = true;
+        submitButton.disabled = true;
+
+        message.textContent = "⏰ Waktu habis!";
+
+        setTimeout(function () {
+
+            nextQuestion();
+
+        }, 700);
+
+    }
+
+
+    /* =========================================
+       CEK JAWABAN
+    ========================================= */
+
+    submitButton.addEventListener("click", function () {
+
+        checkAnswer();
+
+    });
+
+
+    function checkAnswer() {
+
+        if (answerSubmitted) {
+            return;
+        }
+
+        const userAnswer =
+            answerInput.value
+            .trim()
+            .toLowerCase();
+
+        if (userAnswer === "") {
+
+            message.textContent = "Masukkan jawaban terlebih dahulu!";
+
+            return;
+
+        }
+
+        answerSubmitted = true;
+
+        clearInterval(timer);
+
+        answerInput.disabled = true;
+        submitButton.disabled = true;
+
+        const correctAnswers =
+            questions[currentQuestion].answers;
+
+        if (correctAnswers.includes(userAnswer)) {
+
+            score++;
+
+            message.textContent = "✅ BENAR!";
+
+        } else {
+
+            message.textContent = "❌ SALAH!";
+
+        }
+
+        setTimeout(function () {
+
+            nextQuestion();
+
+        }, 700);
+
+    }
+
+
+    /* =========================================
+       ENTER UNTUK MENJAWAB
+    ========================================= */
+
+    answerInput.addEventListener("keydown", function (event) {
+
+        if (event.key === "Enter") {
+
+            checkAnswer();
+
+        }
+
+    });
+
+
+    /* =========================================
+       SOAL BERIKUTNYA
+    ========================================= */
+
+    function nextQuestion() {
+
+        clearInterval(timer);
+
+        currentQuestion++;
+
+        if (currentQuestion >= questions.length) {
+
+            finishQuiz();
+
+        } else {
+
+            showQuestion();
+
+        }
+
+    }
+
+
+    /* =========================================
+       HASIL AKHIR
+    ========================================= */
+
+    function finishQuiz() {
+
+        clearInterval(timer);
+
+        stopClockSound();
+
+        quizScreen.classList.add("hidden");
+
+        resultScreen.classList.remove("hidden");
+
+        scoreElement.textContent =
+            score + " / " + questions.length;
+
+
+        let percentage =
+            Math.round(
+                (score / questions.length) * 100
+            );
+
+
+        if (percentage === 100) {
+
+            resultText.innerHTML =
+                "🏆 SEMPURNA!<br>" +
+                "Kamu berhasil menjawab semua soal dengan benar!";
+
+        } else if (percentage >= 80) {
+
+            resultText.innerHTML =
+                "🔥 LUAR BIASA!<br>" +
+                "Kamu sangat mengenal mereka!";
+
+        } else if (percentage >= 60) {
+
+            resultText.innerHTML =
+                "👏 BAGUS!<br>" +
+                "Tapi masih ada beberapa yang terlewat.";
+
+        } else if (percentage >= 40) {
+
+            resultText.innerHTML =
+                "🙂 Lumayan!<br>" +
+                "Coba lagi untuk mendapatkan skor lebih tinggi.";
+
+        } else {
+
+            resultText.innerHTML =
+                "😅 Wah, harus latihan lagi!<br>" +
+                "Coba main sekali lagi.";
+
+        }
+
+    }
+
+
+    /* =========================================
+       MAIN LAGI
+    ========================================= */
+
+    restartButton.addEventListener("click", function () {
+
+        clearInterval(timer);
+
+        stopClockSound();
+
+        currentQuestion = 0;
+        score = 0;
+
+        resultScreen.classList.add("hidden");
+
+        startScreen.classList.remove("hidden");
+
+    });
+
+
+</script>
+
+</body>
+</html>
